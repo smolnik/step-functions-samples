@@ -1,0 +1,39 @@
+{
+  "StartAt" : "InstanceLauncher",
+  "States" : {
+    "InstanceLauncher" : {
+      "Next" : "InstanceStateChecker",
+      "Resource" : "arn:aws:lambda:eu-west-1:1234567890:function:instance-launcher",
+      "Type" : "Task"
+    },
+    "InstanceStateChecker" : {
+      "Next" : "ChoiceState",
+      "Resource" : "arn:aws:lambda:eu-west-1:1234567890:function:instance-state-checker",
+      "Type" : "Task"
+    },
+    "ChoiceState" : {
+      "Choices" : [ {
+        "Variable" : "$.state",
+        "StringEquals" : "running",
+        "Next" : "InstanceStateDisplay"
+      }, {
+        "Not" : {
+          "Variable" : "$.state",
+          "StringEquals" : "running"
+        },
+        "Next" : "Wait"
+      } ],
+      "Type" : "Choice"
+    },
+    "InstanceStateDisplay" : {
+      "End" : true,
+      "Resource" : "arn:aws:lambda:eu-west-1:1234567890:function:instance-display",
+      "Type" : "Task"
+    },
+    "Wait" : {
+      "Seconds" : 30,
+      "Next" : "InstanceStateChecker",
+      "Type" : "Wait"
+    }
+  }
+}
